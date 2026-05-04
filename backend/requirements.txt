@@ -1,0 +1,31 @@
+fastapi>=0.115.5
+uvicorn[standard]>=0.32.1
+python-multipart>=0.0.12
+pydantic>=2.10.3
+pydantic-settings>=2.6.1
+
+# LangGraph + LangChain
+langgraph>=0.2.59
+langchain>=0.3.12
+langchain-openai>=0.2.12
+langchain-core>=0.3.25
+
+# Azure OpenAI
+openai>=1.57.4
+
+# Data processing
+pandas>=2.2.3
+openpyxl>=3.1.5
+xlrd>=2.0.1
+
+# PDF processing
+pypdf2>=3.0.1
+pdfplumber>=0.11.4
+
+# Utilities
+python-dotenv>=1.0.1
+httpx>=0.27.2
+aiofiles>=24.1.0
+
+# Logging
+structlog>=24.4.0

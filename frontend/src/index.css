@@ -1,0 +1,380 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ───────────────────────────────────────────────────────── */
+:root {
+  --primary:        #4F46E5;
+  --primary-light:  #6366F1;
+  --primary-dark:   #4338CA;
+  --primary-glow:   rgba(79, 70, 229, 0.15);
+
+  --bg-page:        #F1F5F9;
+  --bg-card:        #FFFFFF;
+  --bg-subtle:      #F8FAFC;
+  --bg-muted:       #F1F5F9;
+
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+
+  --border:         #E2E8F0;
+  --border-strong:  #CBD5E1;
+
+  --success:        #10B981;
+  --success-bg:     #ECFDF5;
+  --warning:        #F59E0B;
+  --warning-bg:     #FFFBEB;
+  --error:          #EF4444;
+  --error-bg:       #FEF2F2;
+  --info:           #3B82F6;
+  --info-bg:        #EFF6FF;
+
+  /* Agent colors */
+  --agent-understanding:   #3B82F6;
+  --agent-cause:           #8B5CF6;
+  --agent-classification:  #4F46E5;
+  --agent-validation:      #F59E0B;
+  --agent-retry:           #F97316;
+  --agent-final:           #10B981;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06);
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Typography helpers ──────────────────────────────────────────────────── */
+.label-xs {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.label-sm {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.card-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-light);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: scale(0.98); }
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid rgba(79,70,229,0.25);
+  padding: 7px 14px;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--primary-glow);
+  border-color: var(--primary);
+}
+
+.btn-danger {
+  background: var(--error-bg);
+  color: var(--error);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+.btn-danger:hover:not(:disabled) {
+  background: #FEE2E2;
+  border-color: rgba(239,68,68,0.4);
+}
+
+/* ─── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+.badge-success  { background: var(--success-bg);  color: #065F46; border-color: #A7F3D0; }
+.badge-warning  { background: var(--warning-bg);  color: #92400E; border-color: #FDE68A; }
+.badge-error    { background: var(--error-bg);    color: #991B1B; border-color: #FECACA; }
+.badge-info     { background: var(--info-bg);     color: #1E40AF; border-color: #BFDBFE; }
+.badge-neutral  { background: var(--bg-muted);    color: var(--text-secondary); border-color: var(--border); }
+.badge-primary  { background: rgba(79,70,229,0.08); color: var(--primary); border-color: rgba(79,70,229,0.2); }
+
+/* ─── Agent Status Chips ──────────────────────────────────────────────────── */
+.agent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.chip-idle       { background: var(--bg-muted);   color: var(--text-muted);   border-color: var(--border); }
+.chip-running    { background: #EFF6FF;            color: #1D4ED8;             border-color: #BFDBFE; }
+.chip-completed  { background: var(--success-bg);  color: #065F46;             border-color: #A7F3D0; }
+.chip-error      { background: var(--error-bg);    color: #991B1B;             border-color: #FECACA; }
+
+/* ─── Inputs ──────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 9px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+.input::placeholder { color: var(--text-muted); }
+
+select.input { appearance: none; cursor: pointer; }
+
+/* ─── Upload zone ─────────────────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: 12px;
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover, .upload-zone-active {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+/* ─── Step number circles ─────────────────────────────────────────────────── */
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary-glow);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ─── Agent pipeline stepper ──────────────────────────────────────────────── */
+.pipeline-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 100px;
+}
+.pipeline-step-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.pipeline-step-icon.idle       { background: var(--bg-muted); border-color: var(--border); color: var(--text-muted); }
+.pipeline-step-icon.running    { background: #EFF6FF; border-color: #3B82F6; color: #3B82F6; }
+.pipeline-step-icon.completed  { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+.pipeline-step-icon.error      { background: var(--error-bg); border-color: var(--error); color: var(--error); }
+.pipeline-step-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-align: center; letter-spacing: 0.03em; }
+.pipeline-step-label.active { color: var(--primary); }
+.pipeline-step-label.done   { color: var(--success); }
+
+.pipeline-connector {
+  height: 2px;
+  flex: 1;
+  background: var(--border);
+  min-width: 16px;
+  margin-bottom: 26px;
+  transition: background 0.3s ease;
+}
+.pipeline-connector.done { background: var(--success); }
+
+/* ─── Progress bar ────────────────────────────────────────────────────────── */
+.progress-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.progress-fill.success { background: var(--success); }
+
+/* ─── JSON viewer ─────────────────────────────────────────────────────────── */
+.json-viewer {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* ─── Modal overlay ───────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease both;
+}
+.modal-panel {
+  background: var(--bg-card);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Confidence bar ──────────────────────────────────────────────────────── */
+.conf-bar-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.conf-bar-fill  { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ─── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeUp   { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn  { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideRight { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes spin     { to { transform: rotate(360deg); } }
+@keyframes pulse    { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes shimmer  { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.animate-fade-up    { animation: fadeUp 0.35s ease both; }
+.animate-scale-in   { animation: scaleIn 0.3s ease both; }
+.animate-slide-right { animation: slideRight 0.3s ease both; }
+.animate-spin       { animation: spin 0.8s linear infinite; }
+.animate-pulse      { animation: pulse 2s ease infinite; }
+
+/* Staggered entrance */
+.s1 { animation: fadeUp 0.35s 0.04s ease both; }
+.s2 { animation: fadeUp 0.35s 0.09s ease both; }
+.s3 { animation: fadeUp 0.35s 0.14s ease both; }
+.s4 { animation: fadeUp 0.35s 0.19s ease both; }
+.s5 { animation: fadeUp 0.35s 0.24s ease both; }
+.s6 { animation: fadeUp 0.35s 0.29s ease both; }
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-muted) 25%, var(--border) 50%, var(--bg-muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+/* Running agent glow */
+@keyframes agentGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50%     { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15); }
+}
+.agent-running-glow { animation: agentGlow 1.8s ease infinite; }
+
+/* React Flow customisation */
+.react-flow__node { border-radius: 12px !important; }
+.react-flow__edge-path { stroke-width: 2 !important; }

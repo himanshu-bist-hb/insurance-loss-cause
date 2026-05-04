@@ -1,0 +1,105 @@
+{
+  "Collision": {
+    "Single Vehicle Collision": [
+      "Rollover",
+      "Fixed Object Impact",
+      "Run-Off-Road",
+      "Animal Strike"
+    ],
+    "Multi-Vehicle Collision": [
+      "Rear-End Collision",
+      "Head-On Collision",
+      "Sideswipe",
+      "T-Bone / Intersection"
+    ],
+    "Parking Lot Incident": [
+      "Low-Speed Collision",
+      "Hit and Run (Parked)",
+      "Shopping Cart Impact"
+    ]
+  },
+  "Theft": {
+    "Vehicle Theft": [
+      "Grand Theft Auto",
+      "Carjacking",
+      "Key Relay Attack / Keyless Entry Hack"
+    ],
+    "Parts Theft": [
+      "Catalytic Converter Theft",
+      "Wheel / Rim Theft",
+      "Audio / Navigation System Theft",
+      "Battery Theft (EV)"
+    ],
+    "Contents Theft": [
+      "Smash and Grab",
+      "Opportunistic Theft"
+    ]
+  },
+  "Weather": {
+    "Hail Damage": [
+      "Roof / Hood Hail Dents",
+      "Windshield Hail Crack",
+      "Glass Hail Damage"
+    ],
+    "Flood Damage": [
+      "Engine Hydro-Lock",
+      "Interior Flood Damage",
+      "Total Loss Flood"
+    ],
+    "Wind Damage": [
+      "Flying Debris Impact",
+      "Fallen Tree / Branch",
+      "Structural Wind Damage"
+    ],
+    "Ice / Snow": [
+      "Ice-Related Collision",
+      "Frozen Lock / Door",
+      "Snow Load Damage"
+    ]
+  },
+  "Fire": {
+    "Engine Fire": [
+      "Fuel Leak Ignition",
+      "Electrical Short",
+      "Overheating Engine"
+    ],
+    "Electrical Fire": [
+      "EV Battery Fire",
+      "Wiring Harness Fire",
+      "Aftermarket Accessory Short"
+    ],
+    "External Fire": [
+      "Wildfire Exposure",
+      "Adjacent Vehicle Fire",
+      "Arson"
+    ]
+  },
+  "Glass": {
+    "Windshield": [
+      "Rock / Road Debris Chip",
+      "Stress Crack",
+      "Vandalism"
+    ],
+    "Side / Rear Glass": [
+      "Breakage — Vandalism",
+      "Breakage — Collision",
+      "Spontaneous Fracture"
+    ]
+  },
+  "Mechanical / Breakdown": {
+    "Drivetrain Failure": [
+      "Transmission Failure",
+      "Axle Failure",
+      "CV Joint Failure"
+    ],
+    "Engine Failure": [
+      "Seized Engine",
+      "Timing Chain / Belt Failure",
+      "Coolant System Failure"
+    ],
+    "Brake System": [
+      "Brake Failure",
+      "Brake Line Rupture"
+    ]
+  }
+}

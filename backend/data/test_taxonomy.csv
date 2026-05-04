@@ -1,0 +1,97 @@
+primary_cause,secondary_cause,tertiary_cause
+Fire,Electrical Fire,Short Circuit
+Fire,Electrical Fire,Overheating Equipment
+Fire,Electrical Fire,Faulty Wiring
+Fire,Electrical Fire,Arc Flash
+Fire,Electrical Fire,Electrical Panel Failure
+Fire,External Fire,Wildfire Spread
+Fire,External Fire,Adjacent Property Fire
+Fire,External Fire,Vehicle Fire
+Fire,External Fire,Arson
+Fire,Human-Caused Fire,Hot Work / Welding
+Fire,Human-Caused Fire,Cooking Fire
+Fire,Human-Caused Fire,Open Flame / Candle
+Fire,Human-Caused Fire,Improper Storage of Flammables
+Fire,Spontaneous Combustion,Lithium Battery Fire
+Fire,Spontaneous Combustion,Chemical Reaction
+Fire,Spontaneous Combustion,Oily Rag Ignition
+Water,Plumbing Failure,Burst Pipe
+Water,Plumbing Failure,Frozen Pipe
+Water,Plumbing Failure,Supply Line Failure
+Water,Plumbing Failure,Sewage Backup
+Water,Plumbing Failure,Water Heater Failure
+Water,Appliance Leak,Dishwasher Overflow
+Water,Appliance Leak,Washing Machine Leak
+Water,Appliance Leak,Refrigerator Line Failure
+Water,Appliance Leak,HVAC Condensation Leak
+Water,Roof or Structure Leak,Roof Membrane Failure
+Water,Roof or Structure Leak,Flashing Failure
+Water,Roof or Structure Leak,Ice Dam
+Water,Roof or Structure Leak,Window or Door Seal Failure
+Water,Flood,Surface Water Flooding
+Water,Flood,Storm Drain Backup
+Water,Flood,Flash Flood
+Water,Flood,Municipal Sewer Overflow
+Wind and Storm,Hurricane or Tropical Storm,Category 1-2 Wind Damage
+Wind and Storm,Hurricane or Tropical Storm,Category 3-5 Wind Damage
+Wind and Storm,Hurricane or Tropical Storm,Wind-Driven Rain Intrusion
+Wind and Storm,Tornado,Direct Tornado Impact
+Wind and Storm,Tornado,Tornado Debris Impact
+Wind and Storm,Tornado,Straight-Line Wind Damage
+Wind and Storm,Hail,Hail Damage — Roof
+Wind and Storm,Hail,Hail Damage — HVAC Units
+Wind and Storm,Hail,Hail Damage — Windows and Skylights
+Wind and Storm,Hail,Hail Damage — Solar Panels
+Wind and Storm,Winter Storm,Ice Storm Damage
+Wind and Storm,Winter Storm,Snow Load Collapse
+Wind and Storm,Winter Storm,Freezing Rain Damage
+Theft and Crime,Burglary,Forced Entry — Door
+Theft and Crime,Burglary,Forced Entry — Window
+Theft and Crime,Burglary,No Forced Entry
+Theft and Crime,Burglary,Safe Cracking
+Theft and Crime,Robbery,Armed Robbery
+Theft and Crime,Robbery,Grab and Run
+Theft and Crime,Vandalism,Malicious Damage
+Theft and Crime,Vandalism,Graffiti
+Theft and Crime,Vandalism,Smash and Grab
+Theft and Crime,Cyber Crime,Ransomware Attack
+Theft and Crime,Cyber Crime,Business Email Compromise
+Theft and Crime,Cyber Crime,Data Breach
+Theft and Crime,Cyber Crime,Social Engineering or Phishing
+Liability,Premises Liability,Slip and Fall
+Liability,Premises Liability,Trip and Fall
+Liability,Premises Liability,Inadequate Maintenance
+Liability,Premises Liability,Structural Failure — Railing or Steps
+Liability,Contractors Liability,Construction Defect
+Liability,Contractors Liability,Hot Work Incident
+Liability,Contractors Liability,Subcontractor Negligence
+Liability,Contractors Liability,Excavation Damage
+Liability,Products Liability,Defective Product
+Liability,Products Liability,Failure to Warn
+Liability,Products Liability,Manufacturing Defect
+Liability,Professional Liability,Errors and Omissions
+Liability,Professional Liability,Negligent Advice
+Liability,Professional Liability,Malpractice
+Equipment Breakdown,Mechanical Breakdown,Pump Failure
+Equipment Breakdown,Mechanical Breakdown,Compressor Failure
+Equipment Breakdown,Mechanical Breakdown,Gear or Drive Train Failure
+Equipment Breakdown,Mechanical Breakdown,Motor Burnout
+Equipment Breakdown,Electrical Breakdown,Power Surge Damage
+Equipment Breakdown,Electrical Breakdown,Transformer Failure
+Equipment Breakdown,Electrical Breakdown,Control Board Failure
+Equipment Breakdown,Electrical Breakdown,Thermostat or Relay Failure
+Equipment Breakdown,Boiler and Pressure Vessel,Boiler Explosion
+Equipment Breakdown,Boiler and Pressure Vessel,Pressure Relief Valve Failure
+Equipment Breakdown,Boiler and Pressure Vessel,Steam System Failure
+Equipment Breakdown,Commercial Kitchen Equipment,Oven or Range Failure
+Equipment Breakdown,Commercial Kitchen Equipment,Refrigeration System Failure
+Equipment Breakdown,Commercial Kitchen Equipment,Dishwasher Failure
+Collapse,Structural Collapse,Foundation Failure
+Collapse,Structural Collapse,Wall Collapse
+Collapse,Structural Collapse,Roof Collapse — Structural Defect
+Collapse,Snow and Ice Load,Roof Collapse — Snow Accumulation
+Collapse,Snow and Ice Load,Awning or Canopy Collapse
+Collapse,Snow and Ice Load,Ice Dam Structural Damage
+Collapse,Construction Related,Adjacent Excavation Damage
+Collapse,Construction Related,Vibration Damage
+Collapse,Construction Related,Shoring Failure

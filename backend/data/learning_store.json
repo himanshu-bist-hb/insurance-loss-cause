@@ -1,0 +1,29 @@
+{
+  "rules": [
+    {
+      "extracted_rule": "When classifying a claim using the taxonomy, select only a single best-matching option from the provided taxonomy for each required field (e.g., primary/secondary/tertiary cause). Do not invent, combine, or choose \u201cother\u201d; if multiple options seem possible, pick the closest match.",
+      "rule_category": "prioritization",
+      "applies_to": "Applies to all taxonomy-based classification decisions where multiple candidates could fit and a single best option must be chosen.",
+      "conflicts_with": [],
+      "confidence": 0.84,
+      "created_at": "2026-05-01T06:22:18.672359"
+    }
+  ],
+  "corrections": [
+    {
+      "claim_id": "CLM-TEST-013",
+      "claim_notes_excerpt": "",
+      "original": {
+        "primary_cause": "Equipment Breakdown",
+        "secondary_cause": "Mechanical Breakdown \u2192 Gear / Drive Failure",
+        "tertiary_cause": "Manufacturing Defect (replacement gear installed ~6 months prior, per engineer attribution)"
+      },
+      "corrected": {
+        "primary_cause": "Equipment Breakdown",
+        "secondary_cause": "Mechanical Breakdown",
+        "tertiary_cause": "Gear / Drive Failure"
+      },
+      "created_at": "2026-05-01T06:22:15.515949"
+    }
+  ]
+}

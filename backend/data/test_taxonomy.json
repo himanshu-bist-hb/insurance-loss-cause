@@ -1,0 +1,166 @@
+{
+  "Fire": {
+    "Electrical Fire": [
+      "Short Circuit",
+      "Overheating Equipment",
+      "Faulty Wiring",
+      "Arc Flash",
+      "Electrical Panel Failure"
+    ],
+    "External Fire": [
+      "Wildfire Spread",
+      "Adjacent Property Fire",
+      "Vehicle Fire",
+      "Arson"
+    ],
+    "Human-Caused Fire": [
+      "Hot Work / Welding",
+      "Cooking Fire",
+      "Open Flame / Candle",
+      "Improper Storage of Flammables"
+    ],
+    "Spontaneous Combustion": [
+      "Lithium Battery Fire",
+      "Chemical Reaction",
+      "Oily Rag Ignition"
+    ]
+  },
+  "Water": {
+    "Plumbing Failure": [
+      "Burst Pipe",
+      "Frozen Pipe",
+      "Supply Line Failure",
+      "Sewage Backup",
+      "Water Heater Failure"
+    ],
+    "Appliance Leak": [
+      "Dishwasher Overflow",
+      "Washing Machine Leak",
+      "Refrigerator Line Failure",
+      "HVAC Condensation Leak"
+    ],
+    "Roof or Structure Leak": [
+      "Roof Membrane Failure",
+      "Flashing Failure",
+      "Ice Dam",
+      "Window or Door Seal Failure"
+    ],
+    "Flood": [
+      "Surface Water Flooding",
+      "Storm Drain Backup",
+      "Flash Flood",
+      "Municipal Sewer Overflow"
+    ]
+  },
+  "Wind and Storm": {
+    "Hurricane or Tropical Storm": [
+      "Category 1-2 Wind Damage",
+      "Category 3-5 Wind Damage",
+      "Wind-Driven Rain Intrusion"
+    ],
+    "Tornado": [
+      "Direct Tornado Impact",
+      "Tornado Debris Impact",
+      "Straight-Line Wind Damage"
+    ],
+    "Hail": [
+      "Hail Damage — Roof",
+      "Hail Damage — HVAC Units",
+      "Hail Damage — Windows and Skylights",
+      "Hail Damage — Solar Panels"
+    ],
+    "Winter Storm": [
+      "Ice Storm Damage",
+      "Snow Load Collapse",
+      "Freezing Rain Damage"
+    ]
+  },
+  "Theft and Crime": {
+    "Burglary": [
+      "Forced Entry — Door",
+      "Forced Entry — Window",
+      "No Forced Entry",
+      "Safe Cracking"
+    ],
+    "Robbery": [
+      "Armed Robbery",
+      "Grab and Run"
+    ],
+    "Vandalism": [
+      "Malicious Damage",
+      "Graffiti",
+      "Smash and Grab"
+    ],
+    "Cyber Crime": [
+      "Ransomware Attack",
+      "Business Email Compromise",
+      "Data Breach",
+      "Social Engineering or Phishing"
+    ]
+  },
+  "Liability": {
+    "Premises Liability": [
+      "Slip and Fall",
+      "Trip and Fall",
+      "Inadequate Maintenance",
+      "Structural Failure — Railing or Steps"
+    ],
+    "Contractors Liability": [
+      "Construction Defect",
+      "Hot Work Incident",
+      "Subcontractor Negligence",
+      "Excavation Damage"
+    ],
+    "Products Liability": [
+      "Defective Product",
+      "Failure to Warn",
+      "Manufacturing Defect"
+    ],
+    "Professional Liability": [
+      "Errors and Omissions",
+      "Negligent Advice",
+      "Malpractice"
+    ]
+  },
+  "Equipment Breakdown": {
+    "Mechanical Breakdown": [
+      "Pump Failure",
+      "Compressor Failure",
+      "Gear or Drive Train Failure",
+      "Motor Burnout"
+    ],
+    "Electrical Breakdown": [
+      "Power Surge Damage",
+      "Transformer Failure",
+      "Control Board Failure",
+      "Thermostat or Relay Failure"
+    ],
+    "Boiler and Pressure Vessel": [
+      "Boiler Explosion",
+      "Pressure Relief Valve Failure",
+      "Steam System Failure"
+    ],
+    "Commercial Kitchen Equipment": [
+      "Oven or Range Failure",
+      "Refrigeration System Failure",
+      "Dishwasher Failure"
+    ]
+  },
+  "Collapse": {
+    "Structural Collapse": [
+      "Foundation Failure",
+      "Wall Collapse",
+      "Roof Collapse — Structural Defect"
+    ],
+    "Snow and Ice Load": [
+      "Roof Collapse — Snow Accumulation",
+      "Awning or Canopy Collapse",
+      "Ice Dam Structural Damage"
+    ],
+    "Construction Related": [
+      "Adjacent Excavation Damage",
+      "Vibration Damage",
+      "Shoring Failure"
+    ]
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "Fire": {
+    "Electrical Fire": [
+      "Short Circuit",
+      "Overheating Equipment",
+      "Faulty Wiring",
+      "Arc Flash",
+      "Electrical Panel Failure"
+    ],
+    "External Fire": [
+      "Wildfire / Brush Fire",
+      "Adjacent Property Fire",
+      "Vehicle Fire",
+      "Construction Site Fire"
+    ],
+    "Human-Caused Fire": [
+      "Arson",
+      "Cooking Fire",
+      "Smoking Related",
+      "Candle / Open Flame",
+      "Hot Work / Welding"
+    ],
+    "Mechanical / Friction Fire": [
+      "HVAC Malfunction",
+      "Machinery Overheating",
+      "Generator Failure"
+    ]
+  },
+  "Water": {
+    "Flood": [
+      "Surface Water Flooding",
+      "Storm Surge",
+      "River / Creek Overflow",
+      "Flash Flood"
+    ],
+    "Plumbing Failure": [
+      "Burst Pipe",
+      "Frozen Pipe",
+      "Leaking Pipe",
+      "Sewage Backup",
+      "Water Heater Failure"
+    ],
+    "Roof / Structure Leak": [
+      "Roof Membrane Failure",
+      "Flashing Failure",
+      "Window / Door Seal Failure",
+      "Ice Dam"
+    ],
+    "Appliance Leak": [
+      "Dishwasher Overflow",
+      "Washing Machine Leak",
+      "Refrigerator Line Failure",
+      "HVAC Condensation"
+    ]
+  },
+  "Wind": {
+    "Hurricane / Tropical Storm": [
+      "Category 1-2 Wind Damage",
+      "Category 3-5 Wind Damage",
+      "Storm Surge (Wind-Driven)"
+    ],
+    "Tornado": [
+      "Direct Tornado Path",
+      "Tornado Debris Impact"
+    ],
+    "Straight-Line Wind": [
+      "Derecho",
+      "Microburst",
+      "High Wind Gusts"
+    ],
+    "Hail": [
+      "Hail Impact — Roof",
+      "Hail Impact — Vehicles / Equipment",
+      "Hail Impact — Windows / Glazing"
+    ]
+  },
+  "Liability": {
+    "Premises Liability": [
+      "Slip and Fall",
+      "Trip and Fall",
+      "Inadequate Maintenance",
+      "Structural Failure"
+    ],
+    "Products Liability": [
+      "Defective Product",
+      "Failure to Warn",
+      "Manufacturing Defect",
+      "Design Defect"
+    ],
+    "Professional Liability": [
+      "Errors and Omissions",
+      "Malpractice",
+      "Negligent Advice"
+    ],
+    "Environmental Liability": [
+      "Pollution Release",
+      "Hazardous Waste",
+      "Underground Storage Tank Leak"
+    ]
+  },
+  "Theft and Vandalism": {
+    "Burglary": [
+      "Forced Entry",
+      "No Forced Entry",
+      "Employee Theft"
+    ],
+    "Robbery": [
+      "Armed Robbery",
+      "Express Robbery"
+    ],
+    "Vandalism": [
+      "Graffiti",
+      "Malicious Damage",
+      "Smash and Grab"
+    ],
+    "Cyber / Electronic Theft": [
+      "Data Breach",
+      "Ransomware",
+      "Social Engineering / Phishing"
+    ]
+  },
+  "Collapse": {
+    "Structural Collapse": [
+      "Foundation Failure",
+      "Wall Collapse",
+      "Roof Collapse",
+      "Sinkhole"
+    ],
+    "Snow / Ice Load": [
+      "Roof Collapse — Snow Accumulation",
+      "Ice Dam Structural Damage"
+    ],
+    "Excavation / Construction": [
+      "Adjacent Excavation Damage",
+      "Construction Defect",
+      "Vibration Damage"
+    ]
+  },
+  "Equipment Breakdown": {
+    "Mechanical Breakdown": [
+      "Pump Failure",
+      "Compressor Failure",
+      "Motor Burnout",
+      "Gear / Drive Failure"
+    ],
+    "Electrical Breakdown": [
+      "Power Surge",
+      "Transformer Failure",
+      "UPS Failure",
+      "Circuit Board Failure"
+    ],
+    "Boiler and Pressure Vessel": [
+      "Boiler Explosion",
+      "Pressure Relief Failure",
+      "Steam System Failure"
+    ]
+  },
+  "Natural Catastrophe": {
+    "Earthquake": [
+      "Ground Shaking Damage",
+      "Liquefaction",
+      "Aftershock Damage"
+    ],
+    "Tsunami": [
+      "Wave Impact Damage",
+      "Debris Impact"
+    ],
+    "Volcanic Activity": [
+      "Ash Fall",
+      "Lava Flow",
+      "Pyroclastic Surge"
+    ],
+    "Winter Storm": [
+      "Ice Storm",
+      "Blizzard",
+      "Freezing Rain"
+    ]
+  }
+}
