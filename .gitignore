@@ -39,10 +39,5 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Secrets / local config
-.env
-.env.*
-*.local
-
 # Claude Code local settings
 .claude/
