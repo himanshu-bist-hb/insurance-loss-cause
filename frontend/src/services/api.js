@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const BASE_URL = '/api/v1'
+// In dev: VITE_API_URL is empty → relative path, Vite proxy forwards to localhost:8000
+// In prod: VITE_API_URL = full Azure App Service URL (set in .env.production)
+const BASE_URL = (import.meta.env.VITE_API_URL ?? '') + '/api/v1'
 
 const api = axios.create({
   baseURL: BASE_URL,
