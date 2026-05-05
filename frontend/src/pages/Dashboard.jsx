@@ -54,6 +54,7 @@ export default function Dashboard() {
           understanding_output: event.understanding_output,
           cause_output: event.cause_output,
           classification_output: event.classification_output,
+          corrected_classification_output: event.corrected_classification_output || null,
           validation_output: event.validation_output,
           final_output: event.final_output,
           completed_steps: event.completed_steps || [],
@@ -227,7 +228,12 @@ export default function Dashboard() {
 
           {results.length > 0 && (
             <>
-              <ResultsTable results={results} taxonomy={taxonomy} />
+              <ResultsTable
+                results={results}
+                taxonomy={taxonomy}
+                sessionId={uploadData?.session_id}
+                onResultUpdate={handleResultEvent}
+              />
               <LearningRulesPanel />
             </>
           )}

@@ -136,13 +136,21 @@ def node_classification_retry(state: PipelineState) -> PipelineState:
         fix = validation.get("suggested_fix", {})
         original = state["classification_output"]
 
-        # Carry confidence scores from the fix; fall back to original scores
+        # Carry confidence scores and reasoning from the fix; fall back to original scores
         orig_conf = original.get("confidence", {})
         p = float(fix.get("primary_confidence", orig_conf.get("primary", 0.0)))
         s = float(fix.get("secondary_confidence", orig_conf.get("secondary", 0.0)))
         t = float(fix.get("tertiary_confidence", orig_conf.get("tertiary", 0.0)))
         overall = round((p + s + t) / 3, 4)
-        corrected_conf = {"primary": p, "secondary": s, "tertiary": t, "overall": overall}
+        corrected_conf = {
+            "primary": p,
+            "primary_reasoning": fix.get("primary_confidence_reasoning") or orig_conf.get("primary_reasoning", ""),
+            "secondary": s,
+            "secondary_reasoning": fix.get("secondary_confidence_reasoning") or orig_conf.get("secondary_reasoning", ""),
+            "tertiary": t,
+            "tertiary_reasoning": fix.get("tertiary_confidence_reasoning") or orig_conf.get("tertiary_reasoning", ""),
+            "overall": overall,
+        }
 
         corrected = {
             **original,

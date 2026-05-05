@@ -10,6 +10,10 @@ class RunAnalysisRequest(BaseModel):
         default=None,
         description="Specific claim IDs to validate. None = all claims if run_validation=True"
     )
+    claim_ids: Optional[list[str]] = Field(
+        default=None,
+        description="Specific claim IDs to process. None = all claims in session"
+    )
     session_id: str = Field(..., description="Session ID from upload step")
 
 

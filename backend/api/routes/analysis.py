@@ -105,7 +105,13 @@ async def run_analysis_stream(request: RunAnalysisRequest):
     async def generate():
         all_results = []
 
-        for i, claim in enumerate(claims):
+        # Filter to specific claims if provided (used for single-claim reruns)
+        claims_to_run = (
+            [c for c in claims if c["claim_id"] in request.claim_ids]
+            if request.claim_ids else claims
+        )
+
+        for i, claim in enumerate(claims_to_run):
             claim_id    = claim["claim_id"]
             claim_notes = claim["claim_notes"]
             claim_pdfs  = claim.get("claim_pdfs", [])
@@ -114,7 +120,7 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                 or claim_id in (request.validate_claim_ids or [])
             )
 
-            yield _sse({"type": "claim_start", "claim_id": claim_id, "index": i, "total": len(claims)})
+            yield _sse({"type": "claim_start", "claim_id": claim_id, "index": i, "total": len(claims_to_run)})
             await asyncio.sleep(0)
 
             state = {
@@ -186,7 +192,15 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                             "primary_cause": fix.get("primary_cause", classification.get("primary_cause", "")),
                             "secondary_cause": fix.get("secondary_cause", classification.get("secondary_cause", "")),
                             "tertiary_cause": fix.get("tertiary_cause", classification.get("tertiary_cause", "")),
-                            "confidence": {"primary": _p, "secondary": _s, "tertiary": _t, "overall": _overall},
+                            "confidence": {
+                                "primary": _p,
+                                "primary_reasoning": fix.get("primary_confidence_reasoning") or orig_conf.get("primary_reasoning", ""),
+                                "secondary": _s,
+                                "secondary_reasoning": fix.get("secondary_confidence_reasoning") or orig_conf.get("secondary_reasoning", ""),
+                                "tertiary": _t,
+                                "tertiary_reasoning": fix.get("tertiary_confidence_reasoning") or orig_conf.get("tertiary_reasoning", ""),
+                                "overall": _overall,
+                            },
                             "classification_grade": "HIGH" if _overall > 0.80 else "MEDIUM" if _overall > 0.60 else "LOW",
                             "reasoning": fix.get("correction_reasoning") or validation.get("audit_notes", "Corrected by validation agent."),
                         }
@@ -232,7 +246,7 @@ async def run_analysis_stream(request: RunAnalysisRequest):
             await asyncio.sleep(0)
 
         _results[request.session_id] = all_results
-        yield _sse({"type": "pipeline_complete", "total": len(claims)})
+        yield _sse({"type": "pipeline_complete", "total": len(claims_to_run)})
 
     return StreamingResponse(
         generate(),

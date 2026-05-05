@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Edit3, Check, Copy, CheckCheck, Download, Table2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit3, Check, Copy, CheckCheck, Download, Table2, RotateCcw } from 'lucide-react'
 import * as XLSX from 'xlsx'
-import { submitRemark, submitCorrection } from '../services/api'
+import { submitRemark, submitCorrection, runAnalysisStream } from '../services/api'
 import toast from 'react-hot-toast'
 
 const AGENT_TABS = [
@@ -464,16 +464,17 @@ function FeedbackPanel({ claimId, claimNotes, classification, taxonomy }) {
   )
 }
 
-function ResultRow({ result, index, taxonomy }) {
+function ResultRow({ result, index, taxonomy, isRerunning, onRerun }) {
   const [expanded, setExpanded] = useState(false)
   const fc    = result.final_output?.final_classification
   const conf  = result.final_output?.confidence_score
   const grade = result.final_output?.classification_grade
   const gradeClass = grade === 'HIGH' ? 'badge-success' : grade === 'MEDIUM' ? 'badge-warning' : 'badge-error'
   const delay = `${index * 0.04}s`
+  const isFailed = result.status === 'error'
 
   return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white card-hover" style={{ animation: `fadeUp 0.35s ${delay} ease both` }}>
+    <div className={`border rounded-xl overflow-hidden bg-white card-hover ${isFailed ? 'border-red-200' : 'border-slate-200'}`} style={{ animation: `fadeUp 0.35s ${delay} ease both` }}>
       <div
         className="flex items-center gap-3 px-5 py-4 cursor-pointer hover:bg-slate-50/50 transition-colors"
         onClick={() => setExpanded(e => !e)}
@@ -493,7 +494,7 @@ function ResultRow({ result, index, taxonomy }) {
             <span className="text-slate-400 truncate hidden lg:block">{fc.tertiary_cause}</span>
           </div>
         ) : (
-          <span className="text-xs text-red-500 flex-1">{result.error || 'Classification failed'}</span>
+          <span className="text-xs text-red-500 flex-1 truncate">{result.error || 'Classification failed'}</span>
         )}
 
         <div className="flex items-center gap-2 shrink-0">
@@ -503,12 +504,47 @@ function ResultRow({ result, index, taxonomy }) {
             </div>
           )}
           {grade && <span className={`badge ${gradeClass}`}>{grade}</span>}
+          {/* Rerun button — shown for failed claims or always available */}
+          {isFailed && onRerun && (
+            <button
+              onClick={e => { e.stopPropagation(); onRerun() }}
+              disabled={isRerunning}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all disabled:opacity-60 disabled:cursor-not-allowed bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+            >
+              {isRerunning
+                ? <><div className="w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" /> Running…</>
+                : <><RotateCcw size={11} /> Rerun</>
+              }
+            </button>
+          )}
           {expanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
         </div>
       </div>
 
       {expanded && (
         <div className="border-t border-slate-100 px-5 py-5 animate-fade-up">
+          {/* Error banner with prominent Rerun */}
+          {isFailed && (
+            <div className="mb-5 flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-red-700 mb-1">Pipeline Failed</p>
+                <p className="text-xs text-red-600 leading-relaxed break-words">{result.error || 'An error occurred during processing. Click Rerun to try again.'}</p>
+              </div>
+              {onRerun && (
+                <button
+                  onClick={onRerun}
+                  disabled={isRerunning}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all shrink-0 disabled:opacity-60 disabled:cursor-not-allowed bg-white border-red-300 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600"
+                >
+                  {isRerunning
+                    ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> Rerunning…</>
+                    : <><RotateCcw size={14} /> Rerun Claim</>
+                  }
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Classification 3-tier cards */}
           {fc && (
             <div className="grid grid-cols-3 gap-3 mb-5">
@@ -536,23 +572,36 @@ function ResultRow({ result, index, taxonomy }) {
                   || result.classification_output?.confidence || {}
                 const isCorrected = !!result.corrected_classification_output
                 return (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {[
-                      { label: 'Overall',   val: result.final_output.confidence_score },
-                      { label: 'Primary',   val: effectiveConf.primary },
-                      { label: 'Secondary', val: effectiveConf.secondary },
-                      { label: 'Tertiary',  val: effectiveConf.tertiary },
-                    ].map(item => item.val !== undefined && (
-                      <div key={item.label} className="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                        <p className="label-xs mb-2">
-                          {item.label} Confidence
-                          {isCorrected && item.label !== 'Overall' && (
-                            <span className="ml-1 text-violet-500 font-bold">·</span>
+                  <div className="space-y-2.5">
+                    {isCorrected && (
+                      <p className="text-xs text-violet-600 font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
+                        Confidence scores from Validation Agent
+                      </p>
+                    )}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {[
+                        { label: 'Overall',   val: result.final_output.confidence_score, reasoning: null },
+                        { label: 'Primary',   val: effectiveConf.primary,   reasoning: effectiveConf.primary_reasoning },
+                        { label: 'Secondary', val: effectiveConf.secondary, reasoning: effectiveConf.secondary_reasoning },
+                        { label: 'Tertiary',  val: effectiveConf.tertiary,  reasoning: effectiveConf.tertiary_reasoning },
+                      ].map(item => item.val !== undefined && (
+                        <div key={item.label} className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                          <p className="label-xs mb-2">
+                            {item.label} Confidence
+                            {isCorrected && item.label !== 'Overall' && (
+                              <span className="ml-1 text-violet-500 font-bold">·</span>
+                            )}
+                          </p>
+                          <ConfidenceBar value={item.val} />
+                          {item.reasoning && (
+                            <p className="text-[10px] text-slate-500 leading-relaxed mt-2 italic border-t border-slate-200 pt-2">
+                              {item.reasoning}
+                            </p>
                           )}
-                        </p>
-                        <ConfidenceBar value={item.val} />
-                      </div>
-                    ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )
               })()}
@@ -765,7 +814,8 @@ const SUMMARY_GROUPS = [
       {
         key: 'pri_conf', head: 'Primary Conf',
         render: r => {
-          const b = confBar(r.classification_output?.confidence?.primary)
+          const ec = r.corrected_classification_output?.confidence || r.classification_output?.confidence || {}
+          const b = confBar(ec.primary)
           if (!b) return <span style={{ color: '#CBD5E1', fontSize: 11 }}>—</span>
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 70 }}>
@@ -787,7 +837,8 @@ const SUMMARY_GROUPS = [
       {
         key: 'sec_conf', head: 'Secondary Conf',
         render: r => {
-          const b = confBar(r.classification_output?.confidence?.secondary)
+          const ec = r.corrected_classification_output?.confidence || r.classification_output?.confidence || {}
+          const b = confBar(ec.secondary)
           if (!b) return <span style={{ color: '#CBD5E1', fontSize: 11 }}>—</span>
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 70 }}>
@@ -809,7 +860,8 @@ const SUMMARY_GROUPS = [
       {
         key: 'ter_conf', head: 'Tertiary Conf',
         render: r => {
-          const b = confBar(r.classification_output?.confidence?.tertiary)
+          const ec = r.corrected_classification_output?.confidence || r.classification_output?.confidence || {}
+          const b = confBar(ec.tertiary)
           if (!b) return <span style={{ color: '#CBD5E1', fontSize: 11 }}>—</span>
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 70 }}>
@@ -983,16 +1035,40 @@ function SummaryTable({ results }) {
   )
 }
 
-export default function ResultsTable({ results, taxonomy }) {
+export default function ResultsTable({ results, taxonomy, sessionId, onResultUpdate }) {
   const [showSummary, setShowSummary] = useState(false)
+  const [rerunningIds, setRerunningIds] = useState(new Set())
+
   if (!results?.length) return null
 
   const succeeded = results.filter(r => r.status === 'success')
-  const highConf  = succeeded.filter(r => (r.final_output?.confidence_score ?? 0) > 0.80).length
-  const lowConf   = succeeded.filter(r => (r.final_output?.confidence_score ?? 0) <= 0.60).length
+  const highConf  = succeeded.filter(r => (r.final_output?.confidence_score ?? 0) >= 0.80).length
+  const lowConf   = succeeded.filter(r => (r.final_output?.confidence_score ?? 0) < 0.80).length
   const avgConf = succeeded.length
     ? (succeeded.reduce((a, r) => a + (r.final_output?.confidence_score || 0), 0) / succeeded.length)
     : 0
+
+  const handleRerun = (claimId) => {
+    if (!sessionId) { toast.error('Session ID not available'); return }
+    setRerunningIds(prev => new Set([...prev, claimId]))
+
+    runAnalysisStream(
+      { session_id: sessionId, taxonomy, lob: 'excess_and_surplus', run_validation: false, claim_ids: [claimId] },
+      (event) => {
+        if (event.type === 'claim_complete') {
+          onResultUpdate?.(event)
+          setRerunningIds(prev => { const next = new Set(prev); next.delete(claimId); return next })
+        }
+      },
+      () => {
+        setRerunningIds(prev => { const next = new Set(prev); next.delete(claimId); return next })
+      },
+      (err) => {
+        toast.error('Rerun failed: ' + (err?.message || 'Unknown error'))
+        setRerunningIds(prev => { const next = new Set(prev); next.delete(claimId); return next })
+      }
+    )
+  }
 
   return (
     <div className="space-y-5">
@@ -1023,7 +1099,14 @@ export default function ResultsTable({ results, taxonomy }) {
 
         <div className="space-y-3">
           {results.map((r, i) => (
-            <ResultRow key={r.claim_id} result={r} index={i} taxonomy={taxonomy} />
+            <ResultRow
+              key={r.claim_id}
+              result={r}
+              index={i}
+              taxonomy={taxonomy}
+              isRerunning={rerunningIds.has(r.claim_id)}
+              onRerun={sessionId ? () => handleRerun(r.claim_id) : undefined}
+            />
           ))}
         </div>
       </div>

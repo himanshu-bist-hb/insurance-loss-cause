@@ -80,7 +80,15 @@ def run_classification_agent(
     s = float(conf.get("secondary", 0.0))
     t = float(conf.get("tertiary", 0.0))
     overall = round((p + s + t) / 3, 4)
-    result["confidence"] = {"primary": p, "secondary": s, "tertiary": t, "overall": overall}
+    result["confidence"] = {
+        "primary": p,
+        "primary_reasoning": conf.get("primary_reasoning", ""),
+        "secondary": s,
+        "secondary_reasoning": conf.get("secondary_reasoning", ""),
+        "tertiary": t,
+        "tertiary_reasoning": conf.get("tertiary_reasoning", ""),
+        "overall": overall,
+    }
     result["classification_grade"] = "HIGH" if overall > 0.80 else "MEDIUM" if overall > 0.60 else "LOW"
 
     logger.info(

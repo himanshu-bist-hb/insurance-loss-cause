@@ -83,8 +83,11 @@ Return a JSON object with exactly this structure:
     "tertiary_cause": "Must be a value in the secondary's list",
     "confidence": {{
         "primary": 0.0,
+        "primary_reasoning": "Brief explanation of why this primary confidence score was assigned — e.g. which signals support or weaken it",
         "secondary": 0.0,
+        "secondary_reasoning": "Brief explanation of why this secondary confidence score was assigned",
         "tertiary": 0.0,
+        "tertiary_reasoning": "Brief explanation of why this tertiary confidence score was assigned",
         "overall": 0.0
     }},
     "reasoning": "Detailed explanation of why this classification was chosen",
@@ -141,8 +144,11 @@ Return a JSON object with exactly this structure:
         "secondary_cause": "EXACT value from taxonomy secondary keys",
         "tertiary_cause": "EXACT value from taxonomy tertiary list",
         "primary_confidence": 0.0,
+        "primary_confidence_reasoning": "Brief explanation of why this primary confidence score was assigned",
         "secondary_confidence": 0.0,
+        "secondary_confidence_reasoning": "Brief explanation of why this secondary confidence score was assigned",
         "tertiary_confidence": 0.0,
+        "tertiary_confidence_reasoning": "Brief explanation of why this tertiary confidence score was assigned",
         "correction_reasoning": "Clear explanation of why this classification is more accurate than the original"
     }},
     "confidence_adjustment": 0.0,
