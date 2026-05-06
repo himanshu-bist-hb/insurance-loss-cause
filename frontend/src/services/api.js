@@ -101,20 +101,23 @@ export function runAnalysisPoll(payload, onEvent, onComplete, onError) {
     .then(({ data }) => {
       const jobId = data.job_id
 
+      const dispatchEvents = (events) => {
+        // Stagger events so the UI step-by-step animation still plays
+        events.forEach((event, i) => setTimeout(() => onEvent(event), i * 120))
+      }
+
       const poll = () => {
         if (stopped) return
         api.get(`/analysis/run/poll/${jobId}`, { params: { since: cursor } })
           .then(({ data: res }) => {
             if (stopped) return
             cursor = res.cursor
-            for (const event of res.events) {
-              onEvent(event)
-            }
+            if (res.events.length) dispatchEvents(res.events)
             if (res.done) {
-              stopped = true
-              onComplete?.()
+              const delay = res.events.length * 120 + 50
+              setTimeout(() => { stopped = true; onComplete?.() }, delay)
             } else {
-              timeoutId = setTimeout(poll, 2000)
+              timeoutId = setTimeout(poll, 800)
             }
           })
           .catch((err) => {

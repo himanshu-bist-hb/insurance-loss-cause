@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Play, ShieldCheck, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Clock, Zap } from 'lucide-react'
-import { runAnalysisStream } from '../services/api'
+import { runAnalysisPoll } from '../services/api'
 import toast from 'react-hot-toast'
 
 const AGENTS = [
@@ -176,7 +176,7 @@ export default function RunPipeline({ sessionId, taxonomy, totalClaims, onResult
     setRunning(true); setDone(false); setClaimStates({}); processed.current = 0
     setGlobalSteps([]); setGlobalActive(null)
 
-    runAnalysisStream(
+    runAnalysisPoll(
       { session_id: sessionId, taxonomy, lob: 'excess_and_surplus', run_validation: runValidation, validate_claim_ids: null },
       (event) => {
         if (event.type === 'claim_start') {

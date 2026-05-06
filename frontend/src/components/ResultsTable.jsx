@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Edit3, Check, Copy, CheckCheck, Download, Table2, RotateCcw } from 'lucide-react'
 import * as XLSX from 'xlsx'
-import { submitRemark, submitCorrection, runAnalysisStream } from '../services/api'
+import { submitRemark, submitCorrection, runAnalysisPoll } from '../services/api'
 import toast from 'react-hot-toast'
 
 const AGENT_TABS = [
@@ -1052,7 +1052,7 @@ export default function ResultsTable({ results, taxonomy, sessionId, onResultUpd
     if (!sessionId) { toast.error('Session ID not available'); return }
     setRerunningIds(prev => new Set([...prev, claimId]))
 
-    runAnalysisStream(
+    runAnalysisPoll(
       { session_id: sessionId, taxonomy, lob: 'excess_and_surplus', run_validation: false, claim_ids: [claimId] },
       (event) => {
         if (event.type === 'claim_complete') {
