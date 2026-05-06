@@ -87,6 +87,58 @@ export function runAnalysisStream(payload, onEvent, onComplete, onError) {
     .catch(onError)
 }
 
+export function runAnalysisPoll(payload, onEvent, onComplete, onError) {
+  let cursor = 0
+  let stopped = false
+  let timeoutId = null
+
+  const cancel = () => {
+    stopped = true
+    if (timeoutId) clearTimeout(timeoutId)
+  }
+
+  api.post('/analysis/run/async', payload)
+    .then(({ data }) => {
+      const jobId = data.job_id
+
+      const poll = () => {
+        if (stopped) return
+        api.get(`/analysis/run/poll/${jobId}`, { params: { since: cursor } })
+          .then(({ data: res }) => {
+            if (stopped) return
+            cursor = res.cursor
+            for (const event of res.events) {
+              onEvent(event)
+            }
+            if (res.done) {
+              stopped = true
+              onComplete?.()
+            } else {
+              timeoutId = setTimeout(poll, 2000)
+            }
+          })
+          .catch((err) => {
+            if (stopped) return
+            stopped = true
+            if (timeoutId) clearTimeout(timeoutId)
+            onError?.(err)
+          })
+      }
+
+      timeoutId = setTimeout(poll, 500)
+    })
+    .catch((err) => {
+      // /run/async doesn't exist on this backend (old deploy) — fall back to SSE
+      if (err.response?.status === 404 || err.response?.status === 405 || err.code === 'ERR_NETWORK') {
+        runAnalysisStream(payload, onEvent, onComplete, onError)
+      } else {
+        onError?.(err)
+      }
+    })
+
+  return cancel
+}
+
 // ─── Feedback ─────────────────────────────────────────────────────────────────
 
 export async function submitRemark(payload) {

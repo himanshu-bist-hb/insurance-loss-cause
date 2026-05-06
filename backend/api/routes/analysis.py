@@ -1,6 +1,7 @@
 """Analysis route — runs the multi-agent pipeline on uploaded claims."""
 import asyncio
 import json
+import uuid
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
@@ -18,6 +19,7 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 _results: dict[str, list[dict]] = {}
+_jobs: dict[str, dict] = {}   # job_id → {"events": [], "done": bool}
 
 
 def _fix_differs(original: dict, suggested_fix: dict | None) -> bool:
@@ -92,16 +94,207 @@ async def get_results(session_id: str):
     return {"session_id": session_id, "results": results}
 
 
+# ── Background job + polling (Azure-compatible) ───────────────────────────────
+
+async def _run_job(
+    job_id: str,
+    session_id: str,
+    claims: list,
+    taxonomy: dict,
+    run_validation: bool,
+    validate_claim_ids: list | None,
+    claim_ids: list | None,
+) -> None:
+    def push(event: dict) -> None:
+        _jobs[job_id]["events"].append(event)
+
+    try:
+        claims_to_run = (
+            [c for c in claims if c["claim_id"] in claim_ids]
+            if claim_ids else claims
+        )
+
+        for i, claim in enumerate(claims_to_run):
+            claim_id    = claim["claim_id"]
+            claim_notes = claim["claim_notes"]
+            claim_pdfs  = claim.get("claim_pdfs", [])
+            should_validate = run_validation and (
+                validate_claim_ids is None or claim_id in (validate_claim_ids or [])
+            )
+
+            push({"type": "claim_start", "claim_id": claim_id, "index": i, "total": len(claims_to_run)})
+
+            state = {
+                "understanding_output": {},
+                "classification_output": {},
+                "corrected_classification_output": None,
+                "validation_output": None,
+                "final_output": {},
+                "completed_steps": [],
+                "error": None,
+            }
+
+            try:
+                # ── Understanding ────────────────────────────────────────────
+                push({"type": "agent_start", "claim_id": claim_id, "agent": "understanding"})
+                understanding = await asyncio.to_thread(
+                    run_understanding_agent, claim_id, claim_notes, claim_pdfs
+                )
+                state["understanding_output"] = understanding
+                state["completed_steps"].append("understanding")
+                push({"type": "agent_complete", "claim_id": claim_id, "agent": "understanding", "output": understanding})
+
+                # ── Classification ───────────────────────────────────────────
+                push({"type": "agent_start", "claim_id": claim_id, "agent": "classification"})
+                classification = await asyncio.to_thread(
+                    run_classification_agent,
+                    claim_notes,
+                    understanding,
+                    taxonomy,
+                    understanding.get("pdf_raw_extractions"),
+                )
+                state["classification_output"] = classification
+                state["completed_steps"].append("classification")
+                push({"type": "agent_complete", "claim_id": claim_id, "agent": "classification", "output": classification})
+
+                # ── Validation (optional) ────────────────────────────────────
+                if should_validate:
+                    push({"type": "agent_start", "claim_id": claim_id, "agent": "validation"})
+                    validation = await asyncio.to_thread(
+                        run_validation_agent, claim_notes, understanding, classification, taxonomy
+                    )
+                    fix_is_different = _fix_differs(classification, validation.get("suggested_fix"))
+                    if not fix_is_different:
+                        validation["is_valid"] = True
+                        validation["suggested_fix"] = None
+
+                    state["validation_output"] = validation
+                    state["completed_steps"].append("validation")
+                    push({"type": "agent_complete", "claim_id": claim_id, "agent": "validation", "output": validation})
+
+                    if not validation.get("is_valid", True) and fix_is_different:
+                        push({"type": "agent_start", "claim_id": claim_id, "agent": "classification_retry"})
+                        fix = validation.get("suggested_fix", {})
+                        orig_conf = state["classification_output"].get("confidence", {})
+                        _p = float(fix.get("primary_confidence", orig_conf.get("primary", 0.0)))
+                        _s = float(fix.get("secondary_confidence", orig_conf.get("secondary", 0.0)))
+                        _t = float(fix.get("tertiary_confidence", orig_conf.get("tertiary", 0.0)))
+                        _overall = round((_p + _s + _t) / 3, 4)
+                        corrected = {
+                            **state["classification_output"],
+                            "primary_cause": fix.get("primary_cause", classification.get("primary_cause", "")),
+                            "secondary_cause": fix.get("secondary_cause", classification.get("secondary_cause", "")),
+                            "tertiary_cause": fix.get("tertiary_cause", classification.get("tertiary_cause", "")),
+                            "confidence": {
+                                "primary": _p,
+                                "primary_reasoning": fix.get("primary_confidence_reasoning") or orig_conf.get("primary_reasoning", ""),
+                                "secondary": _s,
+                                "secondary_reasoning": fix.get("secondary_confidence_reasoning") or orig_conf.get("secondary_reasoning", ""),
+                                "tertiary": _t,
+                                "tertiary_reasoning": fix.get("tertiary_confidence_reasoning") or orig_conf.get("tertiary_reasoning", ""),
+                                "overall": _overall,
+                            },
+                            "classification_grade": "HIGH" if _overall > 0.80 else "MEDIUM" if _overall > 0.60 else "LOW",
+                            "reasoning": fix.get("correction_reasoning") or validation.get("audit_notes", "Corrected by validation agent."),
+                        }
+                        state["corrected_classification_output"] = corrected
+                        state["completed_steps"].append("classification_retry")
+                        push({"type": "agent_complete", "claim_id": claim_id, "agent": "classification_retry", "output": corrected})
+
+                # ── Final Output ─────────────────────────────────────────────
+                effective_classification = state["corrected_classification_output"] or state["classification_output"]
+                push({"type": "agent_start", "claim_id": claim_id, "agent": "final_output"})
+                final = await asyncio.to_thread(
+                    run_final_output_agent,
+                    understanding, effective_classification, state["validation_output"]
+                )
+                state["final_output"] = final
+                state["completed_steps"].append("final_output")
+                push({"type": "agent_complete", "claim_id": claim_id, "agent": "final_output", "output": final})
+
+            except Exception as e:
+                logger.error("job_agent_error", claim_id=claim_id, error=str(e))
+                state["error"] = str(e)
+                push({"type": "agent_error", "claim_id": claim_id, "error": str(e)})
+
+            result = {
+                "type": "claim_complete",
+                "claim_id": claim_id, "index": i,
+                "claim_notes": claim_notes,
+                "status": "error" if state["error"] else "success",
+                "error": state["error"],
+                "completed_steps": state["completed_steps"],
+                "understanding_output": state["understanding_output"],
+                "classification_output": state["classification_output"],
+                "corrected_classification_output": state["corrected_classification_output"],
+                "validation_output": state["validation_output"],
+                "final_output": state["final_output"],
+            }
+            push(result)
+
+        push({"type": "pipeline_complete", "total": len(claims_to_run)})
+        _results[session_id] = [
+            e for e in _jobs[job_id]["events"] if e.get("type") == "claim_complete"
+        ]
+
+    except Exception as e:
+        logger.error("job_error", job_id=job_id, error=str(e))
+        push({"type": "pipeline_error", "error": str(e)})
+    finally:
+        _jobs[job_id]["done"] = True
+
+
+@router.post("/run/async")
+async def run_analysis_async(request: RunAnalysisRequest):
+    """Start a background pipeline job and return a job_id to poll."""
+    session = get_session(request.session_id)
+    claims = session["claims"]
+    if not claims:
+        raise HTTPException(status_code=400, detail="No claims found in session")
+    if not request.taxonomy:
+        raise HTTPException(status_code=400, detail="Taxonomy is required")
+
+    job_id = str(uuid.uuid4())
+    _jobs[job_id] = {"events": [], "done": False}
+
+    # create_task schedules the coroutine in the running event loop immediately.
+    # Store the task reference so the garbage collector doesn't kill it mid-run.
+    task = asyncio.create_task(_run_job(
+        job_id=job_id,
+        session_id=request.session_id,
+        claims=list(claims),   # snapshot — avoids any session-mutation races
+        taxonomy=request.taxonomy,
+        run_validation=request.run_validation,
+        validate_claim_ids=request.validate_claim_ids,
+        claim_ids=request.claim_ids,
+    ))
+    _jobs[job_id]["task"] = task
+
+    return {"job_id": job_id}
+
+
+@router.get("/run/poll/{job_id}")
+async def poll_job(job_id: str, since: int = 0):
+    """Return new events since `since` cursor and whether the job is done."""
+    job = _jobs.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    new_events = job["events"][since:]
+    return {
+        "events": new_events,
+        "cursor": since + len(new_events),
+        "done": job["done"],
+    }
+
+
+# ── SSE streaming (kept for local dev / fallback) ─────────────────────────────
+
 def _sse(data: dict) -> str:
     return f"data: {json.dumps(data)}\n\n"
 
 
 async def _with_pings(task: asyncio.Task, interval: int = 20):
-    """
-    Async generator that yields SSE heartbeat comments every `interval` seconds
-    until `task` completes.  This keeps Azure App Service's reverse proxy from
-    buffering the SSE response while a long-running LLM call is in progress.
-    """
     while not task.done():
         try:
             await asyncio.wait_for(asyncio.shield(task), timeout=interval)
@@ -118,7 +311,6 @@ async def run_analysis_stream(request: RunAnalysisRequest):
     async def generate():
         all_results = []
 
-        # Filter to specific claims if provided (used for single-claim reruns)
         claims_to_run = (
             [c for c in claims if c["claim_id"] in request.claim_ids]
             if request.claim_ids else claims
