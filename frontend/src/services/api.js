@@ -108,7 +108,7 @@ export function runAnalysisPoll(payload, onEvent, onComplete, onError) {
 
       const poll = () => {
         if (stopped) return
-        api.get(`/analysis/run/poll/${jobId}`, { params: { since: cursor } })
+        api.get(`/analysis/run/poll/${jobId}`, { params: { since: cursor, _t: Date.now() } })
           .then(({ data: res }) => {
             if (stopped) return
             cursor = res.cursor

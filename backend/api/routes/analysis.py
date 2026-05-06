@@ -3,7 +3,7 @@ import asyncio
 import json
 import uuid
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from api.models.request_models import RunAnalysisRequest
 from api.models.response_models import AnalysisResponse, ClaimResult
@@ -281,11 +281,17 @@ async def poll_job(job_id: str, since: int = 0):
         raise HTTPException(status_code=404, detail="Job not found")
 
     new_events = job["events"][since:]
-    return {
-        "events": new_events,
-        "cursor": since + len(new_events),
-        "done": job["done"],
-    }
+    return JSONResponse(
+        content={
+            "events": new_events,
+            "cursor": since + len(new_events),
+            "done": job["done"],
+        },
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+        },
+    )
 
 
 # ── SSE streaming (kept for local dev / fallback) ─────────────────────────────
