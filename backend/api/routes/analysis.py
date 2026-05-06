@@ -96,6 +96,19 @@ def _sse(data: dict) -> str:
     return f"data: {json.dumps(data)}\n\n"
 
 
+async def _with_pings(task: asyncio.Task, interval: int = 20):
+    """
+    Async generator that yields SSE heartbeat comments every `interval` seconds
+    until `task` completes.  This keeps Azure App Service's reverse proxy from
+    buffering the SSE response while a long-running LLM call is in progress.
+    """
+    while not task.done():
+        try:
+            await asyncio.wait_for(asyncio.shield(task), timeout=interval)
+        except asyncio.TimeoutError:
+            yield ": heartbeat\n\n"
+
+
 @router.post("/run/stream")
 async def run_analysis_stream(request: RunAnalysisRequest):
     """SSE — emits per-agent events for real-time UI updates."""
@@ -137,9 +150,12 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                 # ── Understanding ────────────────────────────────────────────
                 yield _sse({"type": "agent_start", "claim_id": claim_id, "agent": "understanding"})
                 await asyncio.sleep(0)
-                understanding = await asyncio.to_thread(
+                task = asyncio.create_task(asyncio.to_thread(
                     run_understanding_agent, claim_id, claim_notes, claim_pdfs
-                )
+                ))
+                async for ping in _with_pings(task):
+                    yield ping
+                understanding = task.result()
                 state["understanding_output"] = understanding
                 state["completed_steps"].append("understanding")
                 yield _sse({"type": "agent_complete", "claim_id": claim_id, "agent": "understanding", "output": understanding})
@@ -148,13 +164,16 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                 # ── Classification ───────────────────────────────────────────
                 yield _sse({"type": "agent_start", "claim_id": claim_id, "agent": "classification"})
                 await asyncio.sleep(0)
-                classification = await asyncio.to_thread(
+                task = asyncio.create_task(asyncio.to_thread(
                     run_classification_agent,
                     claim_notes,
                     understanding,
                     request.taxonomy,
                     understanding.get("pdf_raw_extractions"),
-                )
+                ))
+                async for ping in _with_pings(task):
+                    yield ping
+                classification = task.result()
                 state["classification_output"] = classification
                 state["completed_steps"].append("classification")
                 yield _sse({"type": "agent_complete", "claim_id": claim_id, "agent": "classification", "output": classification})
@@ -164,9 +183,12 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                 if should_validate:
                     yield _sse({"type": "agent_start", "claim_id": claim_id, "agent": "validation"})
                     await asyncio.sleep(0)
-                    validation = await asyncio.to_thread(
+                    task = asyncio.create_task(asyncio.to_thread(
                         run_validation_agent, claim_notes, understanding, classification, request.taxonomy
-                    )
+                    ))
+                    async for ping in _with_pings(task):
+                        yield ping
+                    validation = task.result()
 
                     fix_is_different = _fix_differs(classification, validation.get("suggested_fix"))
                     if not fix_is_different:
@@ -213,10 +235,13 @@ async def run_analysis_stream(request: RunAnalysisRequest):
                 effective_classification = state["corrected_classification_output"] or state["classification_output"]
                 yield _sse({"type": "agent_start", "claim_id": claim_id, "agent": "final_output"})
                 await asyncio.sleep(0)
-                final = await asyncio.to_thread(
+                task = asyncio.create_task(asyncio.to_thread(
                     run_final_output_agent,
                     understanding, effective_classification, state["validation_output"]
-                )
+                ))
+                async for ping in _with_pings(task):
+                    yield ping
+                final = task.result()
                 state["final_output"] = final
                 state["completed_steps"].append("final_output")
                 yield _sse({"type": "agent_complete", "claim_id": claim_id, "agent": "final_output", "output": final})
@@ -251,5 +276,10 @@ async def run_analysis_stream(request: RunAnalysisRequest):
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache, no-store, no-transform",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+            "Transfer-Encoding": "chunked",
+        },
     )
